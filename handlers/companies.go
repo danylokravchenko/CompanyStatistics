@@ -75,3 +75,38 @@ func AddCompany(c *gin.Context) {
 	})
 
 }
+
+
+// Update company stats
+func UpdateCompany(c *gin.Context) {
+
+	// TODO: maybe in incoming data should be amount of points to add to company stats
+	//  for example, {openedreviews: 2} so company.totalopenedreviews +=2
+	var updateCompanyRequestModel struct {
+		ID string `form:"id" json:"id" binding:"required"`
+		TotalLocations string `form:"totallocations" json:"totallocations" binding:"required"`
+		TotalDoctors string `form:"totaldoctors" json:"totaldoctors" binding:"required"`
+		TotalUsers string `form:"totalusers" json:"totalusers" binding:"required"`
+		TotalInvitations string `form:"totalinvitations" json:"totalinvitations" binding:"required"`
+		TotalCreatedReviews string `form:"totalcreatedreviews" json:"totalcreatedreviews" binding:"required"`
+		TotalOpenedReviews string `form:"totalopenedreviews" json:"totalopenedreviews" binding:"required"`
+	}
+
+	if err := c.ShouldBind(&updateCompanyRequestModel); err != nil {
+		_400(c)
+		return
+	}
+
+	companyID, err := strconv.ParseUint(updateCompanyRequestModel.ID, 10, 64)
+	if err != nil || companyID <= 0 {
+		_400(c)
+		return
+	}
+
+	status, err := companyService.UpdateCompany(appCache, updateCompanyRequestModel)
+
+	c.JSON(status, gin.H {
+		"error": err.Error(),
+	})
+
+}

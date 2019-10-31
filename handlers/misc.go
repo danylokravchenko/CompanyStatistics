@@ -10,6 +10,7 @@ var (
 	appCache *cache.Cache
 )
 
+
 func init() {
 	appCache = cache.New()
 }

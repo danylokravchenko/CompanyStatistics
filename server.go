@@ -27,7 +27,7 @@ func main() {
 		{
 			company.POST("/add", handlers.AddCompany)
 			company.GET("/stats", handlers.GetStats)
-			//company.POST("/update", handlers.UpdateCompany)
+			company.POST("/update", handlers.UpdateCompany)
 		}
 
 		route.Run(":8080")

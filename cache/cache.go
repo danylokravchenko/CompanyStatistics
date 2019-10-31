@@ -129,6 +129,21 @@ func (c *Cache) GetCompany(companyID uint64) (*models.Company, error) {
 }
 
 
+// Put company in map
+func (c *Cache) PutCompany(company *models.Company) {
+
+	c.Mutex.Lock()
+	defer c.Mutex.Unlock()
+
+	companies := c.GetCompanies()
+
+	companies[company.ID] = company
+
+	c.PutCompanies(&companies)
+
+}
+
+
 // watch every 10 seconds for changes in companies map
 func (c *Cache) watch() {
 
