@@ -126,7 +126,7 @@ func TestUpdateCompany(t *testing.T) {
 
 		})
 
-		g.Describe("test that company will be correct modified if one of stats is less than 0", func() {
+		g.Describe("test that company will be correctly modified if one of stats is less than 0", func() {
 
 			requestBody, err := json.Marshal(map[string] string {
 				"id": "1",

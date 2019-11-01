@@ -17,7 +17,7 @@ type Cache struct {
 const(
 	defaultExpiration = 30 * time.Minute
 	cleanupInterval   = 60 * time.Minute
-	waitInterval      = 5 * time.Minute
+	waitInterval      = 10 * time.Second//time.Minute
 	companyMap        = "companies"
 )
 
@@ -37,6 +37,9 @@ func New() *Cache {
 
 // Load companies from database
 func (c *Cache) loadCompanies() {
+
+	c.Mutex.Lock()
+	defer c.Mutex.Unlock()
 
 	dbcompanies := dbworker.LoadCompanies()
 
@@ -113,60 +116,29 @@ func (c *Cache) PutCompany(company *models.Company) {
 // watch every 10 seconds for changes in companies map
 func (c *Cache) watch() {
 
-	//for {
-	//
-	//	<-time.After(waitInterval)
-	//
-	//	users := c.GetUsers()
-	//
-	//	// run it in gorutine because storing data in db may take some time
-	//	// and map with updated users could be out-dated
-	//	go func(users models.UserMap) {
-	//		for _, user := range users {
-	//
-	//			go func(user *models.User) {
-	//				if user.UpdateIsNeeded {
-	//
-	//					if dbworker.UserExists(user.UserID) {
-	//						// update user in db
-	//						go dbworker.UpdateUser(user)
-	//
-	//						for _, transaction := range user.Transactions {
-	//							if !dbworker.TransactionExists(transaction.TransactionID) {
-	//								go dbworker.CreateTransaction(&transaction)
-	//							}
-	//						}
-	//
-	//						for _, deposit := range user.Deposits {
-	//							if !dbworker.DepositExists(deposit.DepositID) {
-	//								go dbworker.CreateDeposit(&deposit)
-	//							}
-	//						}
-	//
-	//					} else {
-	//						// add user to db
-	//						go dbworker.CreateUser(user)
-	//
-	//						for _, transaction := range user.Transactions {
-	//							go dbworker.CreateTransaction(&transaction)
-	//						}
-	//
-	//						for _, deposit := range user.Deposits {
-	//							go dbworker.CreateDeposit(&deposit)
-	//						}
-	//
-	//					}
-	//
-	//					user.UpdateIsNeeded = false
-	//
-	//				}
-	//
-	//			}(user)
-	//
-	//		}
-	//
-	//	}(users)
-	//
-	//}
+	for {
+
+		<-time.After(waitInterval)
+
+		companiesMap := c.GetCompanies()
+
+		companies := make([]*models.Company, 0)
+
+		c.Mutex.Lock()
+
+		for _, company := range companiesMap {
+
+			if company.UpdateIsNeeded() {
+				company.SetUpdateIsNeeded(false)
+				companies = append(companies, company)
+			}
+
+		}
+
+		c.Mutex.Unlock()
+
+		go dbworker.UpdateBatchCompanies(companies)
+
+	}
 
 }
