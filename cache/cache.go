@@ -113,7 +113,7 @@ func (c *Cache) PutCompany(company *models.Company) {
 }
 
 
-// watch every 10 seconds for changes in companies map
+// watch every 10 minutes for changes in companies map
 func (c *Cache) watch() {
 
 	for {
