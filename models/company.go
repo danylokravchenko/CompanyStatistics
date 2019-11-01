@@ -1,26 +1,30 @@
 package models
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 
 type Company struct {
-	ID uint64
-	Name string
-	IsActive bool
-	Settings string
-	Templates string
-	TotalLocations uint64
-	TotalDoctors uint64
-	TotalUsers uint64
-	TotalInvitations uint64
-	TotalCreatedReviews uint64
-	TotalOpenedReviews uint64
-	CreatedAt time.Time
-	CreatedBy uint64
-	UpdatedAt time.Time
-	UpdatedBy uint64
-	DeletedAt time.Time
-	DeletedBy uint64
+	ID uint64 `db:"id"`
+	Name string `db:"name"`
+	//IsActive bool
+	//Settings string
+	//Templates string
+	TotalLocations uint64 `db:"totallocations"`
+	TotalDoctors uint64 `db:"totaldoctors"`
+	TotalUsers uint64 `db:"totalusers"`
+	TotalInvitations uint64 `db:"totalinvitations"`
+	TotalCreatedReviews uint64 `db:"totalcreatedreviews"`
+	TotalOpenedReviews uint64 `db:"totalopenedreviews"`
+	//CreatedAt time.Time
+	//CreatedBy uint64
+	UpdatedAt sql.NullString `db:"updatedat"`
+	TimeUpdatedAt time.Time
+	UpdatedBy sql.NullInt64 `db:"updatedby"`
+	//DeletedAt time.Time
+	//DeletedBy uint64
 	updateIsNeeded bool
 }
 
@@ -40,7 +44,7 @@ func (c *Company) SetUpdateIsNeeded(status bool) {
 func NewCompany(companyID uint64) *Company {
 	return &Company {
 		ID: companyID,
-		updateIsNeeded: true,
+		updateIsNeeded: false,
 	}
 }
 

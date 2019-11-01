@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/UndeadBigUnicorn/CompanyStatistics/cache"
 	"github.com/UndeadBigUnicorn/CompanyStatistics/models"
+	"net/http"
 	"reflect"
 	"strconv"
 )
@@ -45,34 +46,46 @@ func UpdateCompany(c *cache.Cache, data interface{}) (int, error) {
 
 	for i := 0; i < num; i++ {
 
+		// access field and value of incoming data
 		field := fields.Field(i)
 		value := values.Field(i)
 
-		v, err := strconv.ParseUint(value.String(), 10, 64)
+		// parse value to uint64
+		integer, err := strconv.Atoi(value.String())
 		if err != nil {
-			return 400, err
+			return http.StatusBadRequest, err
 		}
 
+		// so we make totally sure that our data will not be less than 0
+		if integer < 0 {
+			integer = 0
+		}
+		v := uint64(integer)
+
+		// some validation of incoming data
 		if v < 0 {
 
-			return 400, errors.New("data cannot be negative")
+			return http.StatusBadRequest, errors.New("data cannot be negative")
 
 		} else if v == 0 && field.Name == "ID" {
 
-			return 400, errors.New("ID cannot be 0")
+			return http.StatusBadRequest, errors.New("ID cannot be 0")
 
 		} else {
 
 			if field.Name == "ID" {
 
-				var err error
-				company, err = c.GetCompany(v)
+				co, err := c.GetCompany(v)
 				if err != nil {
-					return 404, err
+					return http.StatusNotFound, err
 				}
+
+				// make copy of original company to prevent it modification if something went wrong
+				company = co
 
 			} else {
 
+				// access field via fieldname
 				f := reflect.ValueOf(company).Elem().FieldByName(field.Name)
 
 				// change value using reflection
@@ -95,8 +108,10 @@ func UpdateCompany(c *cache.Cache, data interface{}) (int, error) {
 		}
 	}
 
+	company.SetUpdateIsNeeded(true)
+
 	c.PutCompany(company)
 
-	return 200, errors.New("")
+	return http.StatusOK, errors.New("")
 
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/UndeadBigUnicorn/CompanyStatistics/dbworker"
 	"github.com/UndeadBigUnicorn/CompanyStatistics/handlers"
 	"github.com/UndeadBigUnicorn/CompanyStatistics/middleware"
 	"github.com/gin-gonic/gin"
@@ -42,7 +43,8 @@ func main() {
 	// Block until a signal is received
 	<-ch
 	fmt.Println("Stopping the server")
-	//dbworker.CloseConnection()
+	dbworker.CloseConnection()
+	fmt.Println("Closing connection to database")
 	fmt.Println("End of a program")
 
 }

@@ -126,8 +126,60 @@ func TestUpdateCompany(t *testing.T) {
 
 		})
 
+		g.Describe("test that company will be correct modified if one of stats is less than 0", func() {
 
-		g.Describe("get stats after update", func() {
+			requestBody, err := json.Marshal(map[string] string {
+				"id": "1",
+				"totallocations": "0",
+				"totaldoctors": "1",
+				"totalusers": "1",
+				"totalinvitations": "-1",
+				"totalcreatedreviews": "0",
+				"totalopenedreviews": "1",
+			})
+
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			g.It("It should pass and set 0 where data was negative", func() {
+
+				req, err := http.NewRequest("POST", "http://localhost:8080/company/update", bytes.NewBuffer(requestBody))
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				req.Header.Set("Content-Type", "application/json")
+				req.Header.Set("Token", token)
+
+				resp, err := client.Do(req)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				defer resp.Body.Close()
+
+				body, err := ioutil.ReadAll(resp.Body)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				//unmarshal json
+
+				var data map[string]interface{}
+
+				if err := json.Unmarshal(body, &data); err != nil {
+					t.Fatal(err)
+				}
+
+				g.Assert(data["error"]).Equal("")
+
+			})
+
+		})
+
+
+		g.Describe("get stats after correct and failed updates", func() {
 
 			id := 1
 
@@ -162,7 +214,7 @@ func TestUpdateCompany(t *testing.T) {
 				}
 
 				g.Assert(data["error"]).Equal("")
-				g.Assert(data["totallocations"].(float64)).Equal(float64(0))
+				g.Assert(data["totalusers"].(float64)).Equal(float64(2))
 				g.Assert(data["totalinvitations"].(float64)).Equal(float64(2011))
 
 			})

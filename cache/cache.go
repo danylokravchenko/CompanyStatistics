@@ -2,6 +2,7 @@ package cache
 
 import (
 	"errors"
+	"github.com/UndeadBigUnicorn/CompanyStatistics/dbworker"
 	"github.com/UndeadBigUnicorn/CompanyStatistics/models"
 	"github.com/patrickmn/go-cache"
 	"sync"
@@ -33,56 +34,21 @@ func New() *Cache {
 
 }
 
+
+// Load companies from database
 func (c *Cache) loadCompanies() {
 
-	//dbusers, err := dbworker.LoadUsers()
-	//if err != nil {
-	//	log.Println(err)
-	//}
-	//
-	//users := make(models.UserMap)
-	//stats := make(models.UserStatsMap)
-	//
-	//for _, user := range dbusers {
-	//	users[user.UserID] = user
-	//
-	//	depositCount := uint64(0)
-	//	depositSum := float64(0)
-	//
-	//	winCount := uint64(0)
-	//	winSum := float64(0)
-	//
-	//	betCount := uint64(0)
-	//	betSum := float64(0)
-	//
-	//	for _, deposit := range user.Deposits {
-	//		depositCount++
-	//		depositSum += deposit.Amount
-	//	}
-	//
-	//	for _, transaction := range user.Transactions {
-	//		if transaction.Type == models.TransactionTypeWin {
-	//			winCount++
-	//			winSum += transaction.Amount
-	//		} else {
-	//			betCount++
-	//			betSum += transaction.Amount
-	//		}
-	//	}
-	//
-	//	stats[user.UserID] = &models.UserStats{
-	//		DepositCount: depositCount,
-	//		DepositSum:   depositSum,
-	//		BetCount:     betCount,
-	//		BetSum:       betSum,
-	//		WinCount:     winCount,
-	//		WinSum:       winSum,
-	//	}
-	//
-	//}
-	//
-	//c.Put(usersMap, &users)
-	//c.Put(statsMap, &stats)
+	dbcompanies := dbworker.LoadCompanies()
+
+	companies := make(models.CompanyMap)
+
+	for _, company := range dbcompanies {
+
+		companies[company.ID] = &company
+
+	}
+
+	c.Put(companyMap, &companies)
 
 }
 

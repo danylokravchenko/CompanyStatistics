@@ -80,8 +80,6 @@ func AddCompany(c *gin.Context) {
 // Update company stats
 func UpdateCompany(c *gin.Context) {
 
-	// TODO: maybe in incoming data should be amount of points to add to company stats
-	//  for example, {openedreviews: 2} so company.totalopenedreviews +=2
 	var updateCompanyRequestModel struct {
 		ID string `form:"id" json:"id" binding:"required"`
 		TotalLocations string `form:"totallocations" json:"totallocations" binding:"required"`
