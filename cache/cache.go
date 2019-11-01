@@ -47,7 +47,7 @@ func (c *Cache) loadCompanies() {
 
 	for _, company := range dbcompanies {
 
-		companies[company.ID] = &company
+		companies[company.ID] = company
 
 	}
 

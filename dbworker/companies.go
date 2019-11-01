@@ -8,9 +8,9 @@ import (
 
 
 // Load companies from database
-func LoadCompanies() []models.Company {
+func LoadCompanies() []*models.Company {
 
-	var companies []models.Company
+	var companies []*models.Company
 	db.Select(&companies, `
 		SELECT id, name, totallocations, totaldoctors, totalusers,
 		totalinvitations, totalcreatedreviews, totalopenedreviews, updatedat, updatedby
