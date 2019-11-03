@@ -63,8 +63,8 @@ func GetDetailStats(c *cache.Cache, companyID uint64, dateFrom, dateTo time.Time
 		users = append(users, stats.TimeMap[today])
 	}
 
+	//TODO: add mapReduce
 
-
-	return users
+	return nil
 
 }

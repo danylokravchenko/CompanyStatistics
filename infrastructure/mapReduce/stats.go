@@ -1,6 +1,8 @@
 package mapReduce
 
-import "github.com/UndeadBigUnicorn/CompanyStatistics/models"
+import (
+	"github.com/UndeadBigUnicorn/CompanyStatistics/models"
+)
 
 
 const (
@@ -11,18 +13,24 @@ const (
 func LoadCompaniesGenerateInput(users []models.UserStats) chan interface{} {
 
 	input := make(chan interface{})
-	begin, end := 0, 0
-	l := len(users)
 
-	// split 1 big array of UserStats into small arrays
-	// and send into mapper channel
-	for end + mapSize < l {
-		end += mapSize
-		input <- users[begin:end]
-		begin = end
-	}
+	go func() {
+		begin, end := 0, 0
+		l := len(users)
 
-	input <- users[end:]
+		// split 1 big array of UserStats into small arrays
+		// and send into mapper channel
+		for end + mapSize < l {
+			end += mapSize
+			input <- users[begin:end]
+			begin = end
+		}
+
+		input <- users[end:]
+
+		close(input)
+
+	}()
 
 	return input
 
@@ -36,6 +44,7 @@ func LoadCompaniesMapper() MapperFunc {
 		// create temp chan with map
 		results := make(chan models.UserStatsMap)
 		statsArray := array.([]models.UserStats)
+		counter := 0
 
 		for _, stats := range statsArray {
 			// transform array into map
@@ -43,7 +52,12 @@ func LoadCompaniesMapper() MapperFunc {
 				statsMap := models.UserStatsMap{}
 				statsMap[stats.ID] = stats
 				results <- statsMap
+
+				if counter == len(statsArray) {
+					close(results)
+				}
 			}(stats)
+			counter++
 		}
 
 		timeMap := models.TimeMap{}
@@ -66,9 +80,6 @@ func LoadCompaniesMapper() MapperFunc {
 
 		// send temp maps into reducer input
 		output <- timeMap
-
-		// close channel
-		close(results)
 
 	}
 }

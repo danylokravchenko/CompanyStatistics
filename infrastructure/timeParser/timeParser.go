@@ -1,8 +1,13 @@
 package timeParser
 
-import "time"
+import (
+	"time"
+)
 
-const timeLayout = "2006-01-02" + " " + "15:04:05"
+const (
+	timeLayout = "2006-01-02" + " " + "15:04:05"
+	dateLayout = "2006-01-02"
+)
 
 
 // Parse time presented in string to normal Go Time
@@ -12,7 +17,10 @@ func ParseTime(timeToParse string) time.Time {
 		return time.Now()
 	}
 
-	parsedTime, _ := time.Parse(timeLayout, timeToParse)
+	parsedTime, err := time.Parse(timeLayout, timeToParse)
+	if err != nil {
+		parsedTime, err = time.Parse(dateLayout, timeToParse)
+	}
 
 	return parsedTime
 

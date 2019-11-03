@@ -79,7 +79,7 @@ func GetDetailStats (c *gin.Context) {
 
 	from, to := timeParser.ParseTime(getStatsRequestModel.From), timeParser.ParseTime(getStatsRequestModel.To)
 
-	stats := statsService.GetDetailStats(appCache, companyID, from, to, getStatsRequestModel.Order)
+	/*stats := */statsService.GetDetailStats(appCache, companyID, from, to, getStatsRequestModel.Order)
 
 	c.JSON(http.StatusOK, gin.H {
 		"error": "",
