@@ -3,6 +3,7 @@ package cache
 import (
 	"errors"
 	"github.com/UndeadBigUnicorn/CompanyStatistics/dbworker"
+	"github.com/UndeadBigUnicorn/CompanyStatistics/infrastructure/mapReduce"
 	"github.com/UndeadBigUnicorn/CompanyStatistics/models"
 	"github.com/patrickmn/go-cache"
 	"sync"
@@ -19,6 +20,7 @@ const(
 	cleanupInterval   = 60 * time.Minute
 	waitInterval      = 10 * time.Minute
 	companyMap        = "companies"
+	statsMap 		  = "stats"
 )
 
 
@@ -44,13 +46,24 @@ func (c *Cache) loadCompanies() {
 	dbcompanies := dbworker.LoadCompanies()
 
 	companies := make(models.CompanyMap)
+	stats := make(models.StatsMap)
 
 	for _, company := range dbcompanies {
 
-		companies[company.ID] = company
+		companies[company.ID] = &company
+		// 1) collect company stats from database
+		// 2) split big array of stats into smaller ones
+		// 3) transform into time map
+		timeMap := mapReduce.MapReduce(mapReduce.LoadCompaniesMapper(), mapReduce.LoadCompaniesReducer(), mapReduce.LoadCompaniesGenerateInput(dbworker.LoadStats(company.ID)))
+		companyStats := &models.Stats {
+			CompanyID: company.ID,
+			TimeMap:   timeMap.(models.TimeMap),
+		}
+		stats[company.ID] = companyStats
 
 	}
 
+	c.Put(statsMap, &stats)
 	c.Put(companyMap, &companies)
 
 }
@@ -109,6 +122,57 @@ func (c *Cache) PutCompany(company *models.Company) {
 	companies[company.ID] = company
 
 	c.PutCompanies(&companies)
+
+}
+
+
+// Get companies stats map
+func (c *Cache) GetStats() models.StatsMap {
+
+	if stats, ok := c.Get(statsMap); ok {
+		return *stats.(*models.StatsMap)
+	} else {
+		return models.StatsMap{}
+	}
+
+}
+
+
+// Put companies stats map
+func (c *Cache) PutStats(stats *models.StatsMap) {
+
+	c.Put(statsMap, stats)
+
+}
+
+
+// Get specific company stats
+func (c *Cache) GetStatsForCompany(companyID uint64) (*models.Stats, error) {
+
+	stats := c.GetStats()
+
+	statistic, ok := stats[companyID]
+
+	if !ok {
+		return nil, errors.New("Stats was not found")
+	}
+
+	return statistic, nil
+
+}
+
+
+// Put stats for specific company in map
+func (c *Cache) PutStatsForCompany(stats *models.Stats) {
+
+	c.Mutex.Lock()
+	defer c.Mutex.Unlock()
+
+	statistics := c.GetStats()
+
+	statistics[stats.CompanyID] = stats
+
+	c.PutStats(&statistics)
 
 }
 

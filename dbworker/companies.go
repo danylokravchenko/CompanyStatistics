@@ -2,15 +2,16 @@ package dbworker
 
 import (
 	"database/sql"
+	"github.com/UndeadBigUnicorn/CompanyStatistics/infrastructure/timeParser"
 	"github.com/UndeadBigUnicorn/CompanyStatistics/models"
 	"time"
 )
 
 
 // Load companies from database
-func LoadCompanies() []*models.Company {
+func LoadCompanies() []models.Company {
 
-	var companies []*models.Company
+	var companies []models.Company
 	db.Select(&companies, `
 		SELECT id, name, totallocations, totaldoctors, totalusers,
 		totalinvitations, totalcreatedreviews, totalopenedreviews, updatedat, updatedby
@@ -20,7 +21,7 @@ func LoadCompanies() []*models.Company {
 
 	for _, company := range companies {
 		if company.UpdatedAt.Valid {
-			company.TimeUpdatedAt = parseTime(company.UpdatedAt.String)
+			company.TimeUpdatedAt = timeParser.ParseTime(company.UpdatedAt.String)
 		}
 	}
 
@@ -37,7 +38,7 @@ func UpdateBatchCompanies(companies []*models.Company) error {
 	for _, company := range companies {
 
 		company.UpdatedAt = sql.NullString {
-			String:  time.Now().Format(timeLayout),
+			String:  timeParser.FormatTime(time.Now()),
 			Valid: true,
 		}
 

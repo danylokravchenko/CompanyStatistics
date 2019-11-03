@@ -24,13 +24,22 @@ func main() {
 
 	go func() {
 
+		// company routes
 		company := route.Group("/company")
 		{
 			company.POST("/add", handlers.AddCompany)
-			company.GET("/stats", handlers.GetStats)
+			company.GET("/stats", handlers.GetTotalStats)
 			company.POST("/update", handlers.UpdateCompany)
 		}
 
+		// stats routes
+		stats := route.Group("/statistic")
+		{
+			stats.POST("/add", handlers.AddStats)
+			stats.GET("/stats", handlers.GetDetailStats)
+		}
+
+		// start server
 		route.Run(":8080")
 
 	}()

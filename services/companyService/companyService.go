@@ -28,6 +28,14 @@ func AddCompany(c *cache.Cache, companyID uint64) error {
 
 	c.PutCompanies(&companies)
 
+	stats := c.GetStats()
+
+	stats[companyID] = &models.Stats{
+		CompanyID: companyID,
+	}
+
+	c.PutStats(&stats)
+
 	return nil
 
 }

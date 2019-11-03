@@ -18,7 +18,7 @@ func init() {
 
 // 400 wrapper
 func _400(c *gin.Context) {
-	c.JSON(http.StatusBadRequest, gin.H{
+	c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 		"error": "400 Bad Request",
 	})
 }
@@ -26,7 +26,7 @@ func _400(c *gin.Context) {
 
 // 404 wrapper
 func _404(c *gin.Context, message string) {
-	c.JSON(http.StatusNotFound, gin.H{
+	c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
 		"error": message,
 	})
 }
