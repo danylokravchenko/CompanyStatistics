@@ -2,12 +2,13 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/UndeadBigUnicorn/CompanyStatistics/infrastructure/timeParser"
 	"github.com/UndeadBigUnicorn/CompanyStatistics/services/statsService"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"regexp"
 	"strconv"
-	"strings"
 )
 
 
@@ -24,24 +25,29 @@ func AddStats(c *gin.Context) {
 
 	if err := c.ShouldBind(&addStatsRequestModel); err != nil {
 		_400(c)
+		return
 	}
 
 	companyID, err := strconv.ParseUint(addStatsRequestModel.CompanyID, 10, 64)
 	if err != nil || companyID <= 0 {
 		_400(c)
+		return
 	}
 
 	userID, err := strconv.ParseUint(addStatsRequestModel.UserID, 10, 64)
 	if err != nil || userID <= 0 {
 		_400(c)
+		return
 	}
 
 	if addStatsRequestModel.Target != "created" && addStatsRequestModel.Target != "opened" {
 		_400(c)
+		return
 	}
 
 	if addStatsRequestModel.Today == "" {
 		_400(c)
+		return
 	}
 
 	today := timeParser.ParseTime(addStatsRequestModel.Today)
@@ -67,24 +73,28 @@ func GetDetailStats (c *gin.Context) {
 
 	if err := c.ShouldBind(&getStatsRequestModel); err != nil {
 		_400(c)
+		return
 	}
 
 	companyID, err := strconv.ParseUint(getStatsRequestModel.CompanyID, 10, 64)
 	if err != nil || companyID <= 0 {
 		_400(c)
+		return
 	}
 
-	if !strings.Contains("opened created name",getStatsRequestModel.Order){
+	matched, err := regexp.MatchString(fmt.Sprintf(`%s\b`,getStatsRequestModel.Order),"opened created name")
+	if !matched {
 		_400(c)
+		return
 	}
 
 	from, to := timeParser.ParseTime(getStatsRequestModel.From), timeParser.ParseTime(getStatsRequestModel.To)
 
-	stats := statsService.GetDetailStats(appCache, companyID, from, to, getStatsRequestModel.Order)
+	stats, err := statsService.GetDetailStats(appCache, companyID, from, to, getStatsRequestModel.Order)
 	statsJSON, _ := json.Marshal(stats)
 
 	c.JSON(http.StatusOK, gin.H {
-		"error": "",
+		"error": err.Error(),
 		"stats": statsJSON,
 	})
 

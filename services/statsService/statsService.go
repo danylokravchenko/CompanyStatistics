@@ -54,15 +54,18 @@ func UpdateStats(c *cache.Cache, companyID, userID uint64, userName, target stri
 
 
 // Get detailed statistic for company filtered by period of time and ordered by
-func GetDetailStats(c *cache.Cache, companyID uint64, dateFrom, dateTo time.Time, order string) []models.UserStats {
+func GetDetailStats(c *cache.Cache, companyID uint64, dateFrom, dateTo time.Time, order string) ([]models.UserStats, error) {
 
-	stats, _ := c.GetStatsForCompany(companyID)
+	stats, err := c.GetStatsForCompany(companyID)
+	if err != nil {
+		return nil, err
+	}
 
 	// 1) get detail stats for given period of time
 	// 2) intersect timeMaps, compute total stats for users
 	// 3) convert maps into arrays and apply sorting by order
 	res := mapReduce.MapReduce(mapReduce.FilterStatsMapper(), mapReduce.FilterStatsReducer(order), mapReduce.FilterStatsGenerateInput(stats.TimeMap, dateFrom, dateTo))
 
-	return res.([]models.UserStats)
+	return res.([]models.UserStats), errors.New("")
 
 }

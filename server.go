@@ -36,7 +36,7 @@ func main() {
 		stats := route.Group("/statistic")
 		{
 			stats.POST("/add", handlers.AddStats)
-			stats.GET("/stats", handlers.GetDetailStats)
+			stats.POST("/stats", handlers.GetDetailStats)
 		}
 
 		// start server

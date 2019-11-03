@@ -122,8 +122,10 @@ func FilterStatsGenerateInput(timeMap models.TimeMap, dateFrom, dateTo time.Time
 	input := make(chan interface{})
 
 	go func() {
-		for today := dateFrom; today.Unix() <= dateTo.Unix(); today.AddDate(0,0,1) {
-			input <- timeMap[today]
+		for today := dateFrom; today.Unix() <= dateTo.Unix(); today = today.AddDate(0,0,1) {
+			if userStats, ok := timeMap[today]; ok {
+				input <- userStats
+			}
 		}
 		close(input)
 	}()
@@ -150,17 +152,14 @@ func FilterStatsReducer(order string) ReducerFunc {
 
 		// update total stats
 		for in := range input {
-			timeMap := in.(models.TimeMap)
-			for _, tempStatsMap := range timeMap {
-					// add stats number for users
-				for id, stats := range tempStatsMap {
-					if totalStats, ok := finalMap[id]; !ok {
-						finalMap[id] = stats
-					} else {
-						totalStats.Opened += stats.Opened
-						totalStats.Created += stats.Created
-						finalMap[id] = totalStats
-					}
+			userStatsMap := in.(models.UserStatsMap)
+			for id, userStats := range userStatsMap {
+				if totalStats, ok := finalMap[id]; !ok {
+					finalMap[id] = userStats
+				} else {
+					totalStats.Opened += userStats.Opened
+					totalStats.Created += userStats.Created
+					finalMap[id] = totalStats
 				}
 			}
 		}
