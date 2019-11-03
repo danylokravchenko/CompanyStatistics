@@ -8,4 +8,8 @@ And finally, execute `go run server.go` from directory, where `server.go` is loc
 ### How to run tests
 They are testing Rest API, so you need to have a working server. <br/>
 Firstly, setup the server by running `go run server.go` <br/>
-Then in new terminal run `cd tests` and `go test` 
+Then in new terminal run `cd tests/(stats or company)` and `go test` 
+
+### How to run benchmark
+`cd tests/stats/benchmark` && 
+`go test -bench . -count 10`

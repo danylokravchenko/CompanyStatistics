@@ -82,7 +82,7 @@ func GetDetailStats (c *gin.Context) {
 		return
 	}
 
-	matched, err := regexp.MatchString(fmt.Sprintf(`%s\b`,getStatsRequestModel.Order),"opened created name")
+	matched, _ := regexp.MatchString(fmt.Sprintf(`%s\b`,getStatsRequestModel.Order),"opened created name")
 	if !matched {
 		_400(c)
 		return
