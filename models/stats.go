@@ -10,11 +10,11 @@ type Stats struct {
 
 
 type UserStats struct {
-	ID uint64 `db:"id"`
-	Name string `db:"name"`
-	Created uint64 `db:"created"`
-	Opened uint64 `db:"opened"`
-	Today string `db:"today"`
+	ID uint64 `db:"id" json:"id"`
+	Name string `db:"name" json:"name"`
+	Created uint64 `db:"created" json:"created"`
+	Opened uint64 `db:"opened" json:"opened"`
+	Today string `db:"today" json:"today"`
 	TimeToday time.Time
 }
 

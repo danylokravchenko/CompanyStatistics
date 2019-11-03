@@ -3,6 +3,7 @@ package statsService
 import (
 	"errors"
 	"github.com/UndeadBigUnicorn/CompanyStatistics/cache"
+	"github.com/UndeadBigUnicorn/CompanyStatistics/infrastructure/mapReduce"
 	"github.com/UndeadBigUnicorn/CompanyStatistics/infrastructure/timeParser"
 	"github.com/UndeadBigUnicorn/CompanyStatistics/models"
 	"time"
@@ -57,14 +58,11 @@ func GetDetailStats(c *cache.Cache, companyID uint64, dateFrom, dateTo time.Time
 
 	stats, _ := c.GetStatsForCompany(companyID)
 
-	users := make([]models.UserStatsMap, 0)
+	// 1) get detail stats for given period of time
+	// 2) intersect timeMaps, compute total stats for users
+	// 3) convert maps into arrays and apply sorting by order
+	res := mapReduce.MapReduce(mapReduce.FilterStatsMapper(), mapReduce.FilterStatsReducer(order), mapReduce.FilterStatsGenerateInput(stats.TimeMap, dateFrom, dateTo))
 
-	for today := dateFrom; today.Unix() <= dateTo.Unix(); today.AddDate(0,0,1) {
-		users = append(users, stats.TimeMap[today])
-	}
-
-	//TODO: add mapReduce
-
-	return nil
+	return res.([]models.UserStats)
 
 }

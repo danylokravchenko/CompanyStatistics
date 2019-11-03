@@ -1,16 +1,18 @@
 package mapReduce
 
 import (
+	"github.com/UndeadBigUnicorn/CompanyStatistics/infrastructure/sorter"
 	"github.com/UndeadBigUnicorn/CompanyStatistics/models"
+	"time"
 )
 
 
 const (
-	mapSize = 60
+	mapSize = 30
 )
 
-// send users into input channel
-func LoadCompaniesGenerateInput(users []models.UserStats) chan interface{} {
+// send user stats into input channel
+func LoadStatsGenerateInput(users []models.UserStats) chan interface{} {
 
 	input := make(chan interface{})
 
@@ -38,17 +40,17 @@ func LoadCompaniesGenerateInput(users []models.UserStats) chan interface{} {
 
 // Mapper function for loading companies
 // Transform UserStats arrays into map
-func LoadCompaniesMapper() MapperFunc {
+func LoadStatsMapper() MapperFunc {
 	return func(array interface{}, output chan interface{}) {
 
 		// create temp chan with map
 		results := make(chan models.UserStatsMap)
 		statsArray := array.([]models.UserStats)
-		counter := 0
+		counter := 1
 
-		for _, stats := range statsArray {
-			// transform array into map
-			go func(stats models.UserStats) {
+		go func() {
+			for _, stats := range statsArray {
+				// transform array into map
 				statsMap := models.UserStatsMap{}
 				statsMap[stats.ID] = stats
 				results <- statsMap
@@ -56,9 +58,9 @@ func LoadCompaniesMapper() MapperFunc {
 				if counter == len(statsArray) {
 					close(results)
 				}
-			}(stats)
-			counter++
-		}
+				counter++
+			}
+		}()
 
 		timeMap := models.TimeMap{}
 
@@ -86,7 +88,7 @@ func LoadCompaniesMapper() MapperFunc {
 
 // Reducer function for loading companies
 // Intersect temporary timeMaps into final timeMap
-func LoadCompaniesReducer() ReducerFunc {
+func LoadStatsReducer() ReducerFunc {
 	return func(input, output chan interface{}) {
 
 		finalMap := make(models.TimeMap)
@@ -109,6 +111,68 @@ func LoadCompaniesReducer() ReducerFunc {
 		}
 
 		output <- finalMap
+
+	}
+}
+
+
+// Get detail stats for given period of time
+func FilterStatsGenerateInput(timeMap models.TimeMap, dateFrom, dateTo time.Time ) chan interface{} {
+
+	input := make(chan interface{})
+
+	go func() {
+		for today := dateFrom; today.Unix() <= dateTo.Unix(); today.AddDate(0,0,1) {
+			input <- timeMap[today]
+		}
+		close(input)
+	}()
+
+	return input
+
+}
+
+
+// Intersect timeMaps, compute total stats for users
+func FilterStatsMapper() MapperFunc {
+	return func(tempMap interface{}, output chan interface{}) {
+		//timeMap := tempMap.(models.TimeMap)
+		// do nothing :)
+		output <- tempMap
+	}
+}
+
+// Reducer: convert maps into arrays and apply sorting by order
+func FilterStatsReducer(order string) ReducerFunc {
+	return func(input, output chan interface{}) {
+
+		finalMap := make(models.UserStatsMap)
+
+		// update total stats
+		for in := range input {
+			timeMap := in.(models.TimeMap)
+			for _, tempStatsMap := range timeMap {
+					// add stats number for users
+				for id, stats := range tempStatsMap {
+					if totalStats, ok := finalMap[id]; !ok {
+						finalMap[id] = stats
+					} else {
+						totalStats.Opened += stats.Opened
+						totalStats.Created += stats.Created
+						finalMap[id] = totalStats
+					}
+				}
+			}
+		}
+
+		// convert to array
+		userStatsArray := make([]models.UserStats, 0)
+		for _, userStats := range finalMap {
+			userStatsArray = append(userStatsArray, userStats)
+		}
+
+		// sort results
+		output <- sorter.SortDetailStats(userStatsArray, order)
 
 	}
 }

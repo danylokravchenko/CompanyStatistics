@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"github.com/UndeadBigUnicorn/CompanyStatistics/infrastructure/timeParser"
 	"github.com/UndeadBigUnicorn/CompanyStatistics/services/statsService"
 	"github.com/gin-gonic/gin"
@@ -79,11 +80,12 @@ func GetDetailStats (c *gin.Context) {
 
 	from, to := timeParser.ParseTime(getStatsRequestModel.From), timeParser.ParseTime(getStatsRequestModel.To)
 
-	/*stats := */statsService.GetDetailStats(appCache, companyID, from, to, getStatsRequestModel.Order)
+	stats := statsService.GetDetailStats(appCache, companyID, from, to, getStatsRequestModel.Order)
+	statsJSON, _ := json.Marshal(stats)
 
 	c.JSON(http.StatusOK, gin.H {
 		"error": "",
-		//stats...
+		"stats": statsJSON,
 	})
 
 }

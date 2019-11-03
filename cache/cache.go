@@ -55,14 +55,16 @@ func (c *Cache) loadCompanies() {
 		// 2) split big array of stats into smaller ones
 		// 3) transform into time map
 		userStatsArray := dbworker.LoadStats(company.ID)
-		var companyStats *models.Stats
-		if len(userStatsArray) > 0 {
-			timeMap := mapReduce.MapReduce(mapReduce.LoadCompaniesMapper(), mapReduce.LoadCompaniesReducer(), mapReduce.LoadCompaniesGenerateInput(userStatsArray))
-			companyStats = &models.Stats {
-				CompanyID: company.ID,
-				TimeMap:   timeMap.(models.TimeMap),
-			}
+		companyStats := &models.Stats{
+			CompanyID: company.ID,
+			TimeMap: models.TimeMap{},
 		}
+
+		if len(userStatsArray) > 0 {
+			timeMap := mapReduce.MapReduce(mapReduce.LoadStatsMapper(), mapReduce.LoadStatsReducer(), mapReduce.LoadStatsGenerateInput(userStatsArray))
+			companyStats.TimeMap = timeMap.(models.TimeMap)
+		}
+
 		stats[company.ID] = companyStats
 
 	}
