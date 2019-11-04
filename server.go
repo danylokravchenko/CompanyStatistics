@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"github.com/UndeadBigUnicorn/CompanyStatistics/config"
 	"github.com/UndeadBigUnicorn/CompanyStatistics/dbworker"
 	"github.com/UndeadBigUnicorn/CompanyStatistics/handlers"
+	. "github.com/UndeadBigUnicorn/CompanyStatistics/infrastructure/logging"
 	"github.com/UndeadBigUnicorn/CompanyStatistics/middleware"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -52,9 +52,9 @@ func main() {
 
 	// Block until a signal is received
 	<-ch
-	fmt.Println("Stopping the server")
+	Info.Println("Stopping the server")
 	dbworker.CloseConnection()
-	fmt.Println("Closing connection to database")
-	fmt.Println("End of a program")
+	Info.Println("Closing connection to database")
+	Info.Println("End of a program")
 
 }

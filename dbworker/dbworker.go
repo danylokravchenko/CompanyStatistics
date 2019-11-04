@@ -2,9 +2,9 @@ package dbworker
 
 import (
 	"github.com/UndeadBigUnicorn/CompanyStatistics/config"
+	. "github.com/UndeadBigUnicorn/CompanyStatistics/infrastructure/logging"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
-	"log"
 )
 
 var db *sqlx.DB
@@ -16,7 +16,7 @@ func init() {
 	var err error
 	db, err = sqlx.Connect("mysql", config.GetSetting("mysqlURL").(string))
 	if err != nil {
-		log.Fatalln(err)
+		Error.Fatalln(err)
 	}
 
 }

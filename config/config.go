@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	. "github.com/UndeadBigUnicorn/CompanyStatistics/infrastructure/logging"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 )
@@ -23,7 +24,7 @@ func init() {
 		if err != nil { // Handle errors reading the config file
 			panic(fmt.Errorf("Fatal error config file: %s \n", err))
 		}
-		fmt.Println("Config file changed:", e.Name)
+		Info.Println("Config file changed:", e.Name)
 	})
 
 }
