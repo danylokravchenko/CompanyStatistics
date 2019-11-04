@@ -23,12 +23,12 @@ func UpdateStats(c *cache.Cache, companyID, userID uint64, userName, target stri
 
 	if stats.Contains(userID, today) {
 		user := stats.TimeMap[today][userID]
-
 		if target == "opened" {
 			user.Opened++
 		} else {
 			user.Created++
 		}
+		stats.TimeMap[today][userID] = user
 
 	} else {
 		users := models.UserStatsMap{}
@@ -44,6 +44,7 @@ func UpdateStats(c *cache.Cache, companyID, userID uint64, userName, target stri
 			user.Created++
 		}
 		users[userID] = user
+		stats.TimeMap[today] = users
 	}
 
 	c.PutStatsForCompany(stats)

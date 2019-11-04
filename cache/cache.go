@@ -171,9 +171,6 @@ func (c *Cache) GetStatsForCompany(companyID uint64) (*models.Stats, error) {
 // Put stats for specific company in map
 func (c *Cache) PutStatsForCompany(stats *models.Stats) {
 
-	c.Mutex.Lock()
-	defer c.Mutex.Unlock()
-
 	statistics := c.GetStats()
 
 	statistics[stats.CompanyID] = stats

@@ -95,7 +95,7 @@ func GetDetailStats (c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H {
 		"error": err.Error(),
-		"stats": statsJSON,
+		"stats": string(statsJSON),
 	})
 
 }
