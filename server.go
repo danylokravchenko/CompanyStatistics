@@ -17,7 +17,9 @@ func main() {
 	// if we crash the go code, we get the file name and line number
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	//gin.SetMode(gin.ReleaseMode)
+	if config.GetSetting("mode").(string) == "prod" {
+		gin.SetMode(gin.ReleaseMode)
+	}
 
 	route := gin.Default()
 
