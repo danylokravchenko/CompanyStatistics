@@ -20,10 +20,19 @@ and restart mysql `sudo service mysql restart`
 (If you need some help with MySQL connection URL, you could read <a href="https://github.com/go-sql-driver/mysql">https://github.com/go-sql-driver/mysql</a>). <br/>
 And finally, execute `go run server.go` from directory, where `server.go` is located
 
+### How to run using Make
+* `make run` - to start server
+* `make docker` - to run docker
+* `make test-stats` - to run tests for stats
+* `make test-company` - to run tests for company
+
+### How to run docker
+`docker-compose up --build`
+
 ### How to run tests
 They are testing Rest API, so you need to have a working server. <br/>
 Firstly, setup the server by running `go run server.go` <br/>
-Then in new terminal run `cd tests/(stats or company)` and `go test` 
+Then in new terminal run `cd tests/(stats or company)` and `go test` .
 
 ### How to run benchmark
 `cd tests/stats/benchmark` && 
