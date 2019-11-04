@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/UndeadBigUnicorn/CompanyStatistics/config"
 	"github.com/UndeadBigUnicorn/CompanyStatistics/dbworker"
 	"github.com/UndeadBigUnicorn/CompanyStatistics/handlers"
 	"github.com/UndeadBigUnicorn/CompanyStatistics/middleware"
@@ -40,7 +41,7 @@ func main() {
 		}
 
 		// start server
-		route.Run(":8080")
+		route.Run(config.GetSetting("port").(string))
 
 	}()
 

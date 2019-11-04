@@ -1,14 +1,9 @@
 package timeParser
 
 import (
+	"github.com/UndeadBigUnicorn/CompanyStatistics/config"
 	"time"
 )
-
-const (
-	timeLayout = "2006-01-02" + " " + "15:04:05"
-	dateLayout = "2006-01-02"
-)
-
 
 // Parse time presented in string to normal Go Time
 func ParseTime(timeToParse string) time.Time {
@@ -17,9 +12,9 @@ func ParseTime(timeToParse string) time.Time {
 		return time.Now()
 	}
 
-	parsedTime, err := time.Parse(timeLayout, timeToParse)
+	parsedTime, err := time.Parse(config.GetSetting("timeLayout").(string), timeToParse)
 	if err != nil {
-		parsedTime, err = time.Parse(dateLayout, timeToParse)
+		parsedTime, err = time.Parse(config.GetSetting("dateLayout").(string), timeToParse)
 	}
 
 	return parsedTime
@@ -29,5 +24,5 @@ func ParseTime(timeToParse string) time.Time {
 
 // Format time to general layout
 func FormatTime(today time.Time) string {
-	return today.Format(timeLayout)
+	return today.Format(config.GetSetting("timeLayout").(string))
 }

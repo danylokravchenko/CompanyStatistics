@@ -1,11 +1,10 @@
 package middleware
 
 import (
+	"github.com/UndeadBigUnicorn/CompanyStatistics/config"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
-
-const passcode = "5672139asdaw"
 
 func Auth() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -18,7 +17,7 @@ func Auth() gin.HandlerFunc {
 			return
 		}
 
-		if tokenHeader != passcode { //Token is invalid
+		if tokenHeader != config.GetSetting("authToken").(string) { //Token is invalid
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H {
 				"error": "Token is not valid",
 			})
