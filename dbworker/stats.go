@@ -19,7 +19,6 @@ func LoadStats(companyID uint64) []models.UserStats {
 		group by s.today
 	`, &companyID)
 
-
 	for idx, user := range users {
 		user.TimeToday = timeParser.ParseTime(user.Today)
 		users[idx] = user
@@ -62,7 +61,7 @@ func UpdateBatchStats(stats []models.UserStats) error {
 			UPDATE stats
 			SET 
 			opened = :opened,
-			created = :created,
+			created = :created
 			WHERE id = :statsid;
 		`, personalStats)
 

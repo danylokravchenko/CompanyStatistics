@@ -203,10 +203,10 @@ func UpdateStatsMapper() MapperFunc {
 		for today, userStatsMap := range stats.TimeMap {
 			for id, personalStats := range userStatsMap {
 				if personalStats.UpdateIsNeeded {
-					statsArray = append(statsArray, personalStats)
 					// update is not needed more
 					personalStats.UpdateIsNeeded = false
 					stats.TimeMap[today][id] = personalStats
+					statsArray = append(statsArray, personalStats)
 				}
 			}
 		}

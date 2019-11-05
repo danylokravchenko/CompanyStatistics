@@ -180,7 +180,7 @@ func TestFirstGetStats(t *testing.T) {
 
 		requestBody, err := json.Marshal(map[string]string{
 			"companyid": "1",
-			"userid": "13",
+			"userid": "3",
 			"target": "created",
 			"name": "Darth Vader",
 			"today": "2019-11-03",
