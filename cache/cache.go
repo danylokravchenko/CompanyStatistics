@@ -18,7 +18,7 @@ type Cache struct {
 const(
 	defaultExpiration = 30 * time.Minute
 	cleanupInterval   = 60 * time.Minute
-	waitInterval      = 10 * time.Second // time.Minute
+	waitInterval      = 10 * time.Minute
 	companyMap        = "companies"
 	statsMap 		  = "stats"
 )
