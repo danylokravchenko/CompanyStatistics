@@ -11,7 +11,7 @@ func LoadStats(companyID uint64) []models.UserStats {
 	var users []models.UserStats
 	db.Select(&users, `
 		select
-			s,id as statsid, u.id, concat(u.firstname, ' ', u.lastname) as name, s.today, 
+			s.id as statsid, u.id, concat(u.firstname, ' ', u.lastname) as name, s.today, 
 			ifnull(sum(s.created),0) as created, ifnull(sum(s.opened),0) as opened
 		from stats s
 		inner join users u on u.id = s.userid
