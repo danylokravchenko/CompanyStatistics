@@ -216,7 +216,12 @@ func (c *Cache) watch() {
 			// 3) Divide into 2 arrays: [0] - to insert to db; [1] - to update in db
 			statsInterface := mapReduce.MapReduce(mapReduce.UpdateStatsMapper(), mapReduce.UpdateStatsReducer(), mapReduce.UpdateStatsGenerateInput(statsMap))
 			stats := statsInterface.([][]models.UserStats)
-			go dbworker.InsertBatchStats(stats[0])
+			go func() {
+				insertedStats, _ := dbworker.InsertBatchStats(stats[0])
+				for _, personalStats := range insertedStats {
+					statsMap[personalStats.CompanyID].TimeMap[personalStats.TimeToday][personalStats.ID] = personalStats
+				}
+			}()
 			go dbworker.UpdateBatchStats(stats[1])
 			wg.Done()
 		}(wg, statsMap)

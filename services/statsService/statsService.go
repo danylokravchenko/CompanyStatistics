@@ -32,8 +32,7 @@ func UpdateStats(c *cache.Cache, companyID, userID uint64, userName, target stri
 		stats.TimeMap[today][userID] = user
 
 	} else {
-		users := models.UserStatsMap{}
-		user := models.UserStats{
+		user := models.UserStats {
 			StatsID: 0,
 			CompanyID: companyID,
 			ID:        userID,
@@ -47,8 +46,7 @@ func UpdateStats(c *cache.Cache, companyID, userID uint64, userName, target stri
 		} else {
 			user.Created++
 		}
-		users[userID] = user
-		stats.TimeMap[today] = users
+		stats.TimeMap[today][userID] = user
 	}
 
 	c.PutStatsForCompany(stats)

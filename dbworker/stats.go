@@ -30,22 +30,25 @@ func LoadStats(companyID uint64) []models.UserStats {
 
 
 // Wrap stats insert queries in a transaction
-func InsertBatchStats(stats []models.UserStats) error {
+func InsertBatchStats(stats []models.UserStats) ([]models.UserStats, error) {
 
 	tx := db.MustBegin()
 
-	for _, personalStats := range stats {
+	for idx, personalStats := range stats {
 
-		tx.NamedExec(`
+		res, _ := tx.NamedExec(`
 		 insert into stats
                 	(companyid, userid, today, created, opened)
                 values
                     (:companyid, :id, :today, :created, :opened)
 		`, personalStats)
 
+		id, _ := res.LastInsertId()
+		stats[idx].StatsID = uint64(id)
+
 	}
 
-	return tx.Commit()
+	return stats, tx.Commit()
 
 }
 
