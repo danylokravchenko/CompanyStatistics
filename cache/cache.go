@@ -221,9 +221,9 @@ func (c *Cache) watch() {
 				for _, personalStats := range insertedStats {
 					statsMap[personalStats.CompanyID].TimeMap[personalStats.TimeToday][personalStats.ID] = personalStats
 				}
+				wg.Done()
 			}()
 			go dbworker.UpdateBatchStats(stats[1])
-			wg.Done()
 		}(wg, statsMap)
 
 
