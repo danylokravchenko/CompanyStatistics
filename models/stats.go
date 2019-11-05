@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 
 type Stats struct {
@@ -10,12 +12,15 @@ type Stats struct {
 
 
 type UserStats struct {
+	StatsID uint64 `db:"statsid" json:"-,omitempty"` // don't need in json
+	CompanyID uint64 `db:"companyid" json:"-,omitempty"` // don't need in json
 	ID uint64 `db:"id" json:"id"`
 	Name string `db:"name" json:"name"`
 	Created uint64 `db:"created" json:"created"`
 	Opened uint64 `db:"opened" json:"opened"`
 	Today string `db:"today" json:"today"`
-	TimeToday time.Time
+	TimeToday time.Time `json:"-,omitempty"` // don't need in json
+	UpdateIsNeeded bool `json:"-,omitempty"` // don't need in json
 }
 
 

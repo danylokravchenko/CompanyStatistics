@@ -116,7 +116,7 @@ func UpdateCompany(c *cache.Cache, data interface{}) (int, error) {
 		}
 	}
 
-	company.SetUpdateIsNeeded(true)
+	company.UpdateIsNeeded = true
 
 	c.PutCompany(company)
 

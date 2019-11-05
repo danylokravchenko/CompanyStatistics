@@ -12,7 +12,7 @@ import (
 )
 
 
-// Add already created stats to cache
+// Add or update stats in cache
 func AddStats(c *gin.Context) {
 
 	var addStatsRequestModel struct {

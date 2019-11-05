@@ -18,7 +18,7 @@ type Cache struct {
 const(
 	defaultExpiration = 30 * time.Minute
 	cleanupInterval   = 60 * time.Minute
-	waitInterval      = 10 * time.Minute
+	waitInterval      = 10 * time.Second // time.Minute
 	companyMap        = "companies"
 	statsMap 		  = "stats"
 )
@@ -188,23 +188,42 @@ func (c *Cache) watch() {
 		<-time.After(waitInterval)
 
 		companiesMap := c.GetCompanies()
-
-		companies := make([]*models.Company, 0)
+		statsMap := c.GetStats()
 
 		c.Mutex.Lock()
 
-		for _, company := range companiesMap {
+		wg := &sync.WaitGroup{}
 
-			if company.UpdateIsNeeded() {
-				company.SetUpdateIsNeeded(false)
-				companies = append(companies, company)
+		wg.Add(2)
+
+		// update companies
+		go func(wg *sync.WaitGroup, companiesMap models.CompanyMap) {
+			companies := make([]*models.Company, 0)
+			for _, company := range companiesMap {
+				if company.UpdateIsNeeded {
+					company.UpdateIsNeeded = false
+					companies = append(companies, company)
+				}
 			}
+			go dbworker.UpdateBatchCompanies(companies)
+			wg.Done()
+		}(wg, companiesMap)
 
-		}
+		// update or create personal stats
+		go func(wg *sync.WaitGroup, statsMap models.StatsMap) {
+			// 1) Filter personal stats by company
+			// 2) Check if update is needed for personal stats
+			// 3) Divide into 2 arrays: [0] - to insert to db; [1] - to update in db
+			statsInterface := mapReduce.MapReduce(mapReduce.UpdateStatsMapper(), mapReduce.UpdateStatsReducer(), mapReduce.UpdateStatsGenerateInput(statsMap))
+			stats := statsInterface.([][]models.UserStats)
+			go dbworker.InsertBatchStats(stats[0])
+			go dbworker.UpdateBatchStats(stats[1])
+			wg.Done()
+		}(wg, statsMap)
 
+
+		wg.Wait()
 		c.Mutex.Unlock()
-
-		go dbworker.UpdateBatchCompanies(companies)
 
 	}
 

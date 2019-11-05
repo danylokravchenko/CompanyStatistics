@@ -28,15 +28,19 @@ func UpdateStats(c *cache.Cache, companyID, userID uint64, userName, target stri
 		} else {
 			user.Created++
 		}
+		user.UpdateIsNeeded = true
 		stats.TimeMap[today][userID] = user
 
 	} else {
 		users := models.UserStatsMap{}
 		user := models.UserStats{
+			StatsID: 0,
+			CompanyID: companyID,
 			ID:        userID,
 			Name:      userName,
 			Today:     timeParser.FormatTime(today),
 			TimeToday: today,
+			UpdateIsNeeded: true,
 		}
 		if target == "opened" {
 			user.Opened++

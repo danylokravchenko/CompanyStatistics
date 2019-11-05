@@ -175,3 +175,69 @@ func FilterStatsReducer(order string) ReducerFunc {
 
 	}
 }
+
+
+// Send to mapper input chanel only map with one specific company
+func UpdateStatsGenerateInput(statsMap models.StatsMap) chan interface{} {
+
+	input := make(chan interface{})
+
+	go func() {
+		for _, stats := range statsMap {
+			input <- stats
+		}
+		close(input)
+	}()
+
+	return input
+
+}
+
+// Send to reducer stats (as array) that only needed an update or creation
+func UpdateStatsMapper() MapperFunc {
+	return func(statsInstance interface{}, output chan interface{}) {
+
+		stats := statsInstance.(*models.Stats)
+		statsArray := make([]models.UserStats, 0)
+
+		for today, userStatsMap := range stats.TimeMap {
+			for id, personalStats := range userStatsMap {
+				if personalStats.UpdateIsNeeded {
+					statsArray = append(statsArray, personalStats)
+					// update is not needed more
+					personalStats.UpdateIsNeeded = false
+					stats.TimeMap[today][id] = personalStats
+				}
+			}
+		}
+
+		output <- statsArray
+
+	}
+}
+
+// Append personal stats that need to be updated or created to one big array with all companies
+func UpdateStatsReducer() ReducerFunc {
+	return func(input chan interface{}, output chan interface{}) {
+
+		// [0] - stats to insert to db
+		// [1] - stats to update in db
+		finalArray := make([][]models.UserStats, 2)
+
+		for in := range input {
+			statsArray := in.([]models.UserStats)
+
+			for _, stats := range statsArray {
+				if stats.StatsID == 0 {
+					finalArray[0] = append(finalArray[0], stats)
+				} else {
+					finalArray[1] = append(finalArray[1], stats)
+				}
+			}
+
+		}
+
+		output <- finalArray
+
+	}
+}

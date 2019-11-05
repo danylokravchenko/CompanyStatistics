@@ -11,7 +11,7 @@ func LoadStats(companyID uint64) []models.UserStats {
 	var users []models.UserStats
 	db.Select(&users, `
 		select
-			u.id, concat(u.firstname, ' ', u.lastname) as name, s.today, 
+			s,id as statsid, u.id, concat(u.firstname, ' ', u.lastname) as name, s.today, 
 			ifnull(sum(s.created),0) as created, ifnull(sum(s.opened),0) as opened
 		from stats s
 		inner join users u on u.id = s.userid
@@ -26,5 +26,48 @@ func LoadStats(companyID uint64) []models.UserStats {
 	}
 
 	return users
+
+}
+
+
+// Wrap stats insert queries in a transaction
+func InsertBatchStats(stats []models.UserStats) error {
+
+	tx := db.MustBegin()
+
+	for _, personalStats := range stats {
+
+		tx.NamedExec(`
+		 insert into stats
+                	(companyid, userid, today, created, opened)
+                values
+                    (:companyid, :id, :today, :created, :opened)
+		`, personalStats)
+
+	}
+
+	return tx.Commit()
+
+}
+
+
+// Wrap stats update queries in a transaction
+func UpdateBatchStats(stats []models.UserStats) error {
+
+	tx := db.MustBegin()
+
+	for _, personalStats := range stats {
+
+		tx.NamedExec(`
+			UPDATE stats
+			SET 
+			opened = :opened,
+			created = :created,
+			WHERE id = :statsid;
+		`, personalStats)
+
+	}
+
+	return tx.Commit()
 
 }
