@@ -229,10 +229,10 @@ func TestFirstGetStats(t *testing.T) {
 	g.Describe("correct get stats 2nd time after add new stats", func() {
 
 		requestBody, err := json.Marshal(map[string]string{
-			"companyid": "1",
-			"order": "opened",
-			"from": "2019-08-01",
-			"to": "2019-11-04",
+			"companyid": "3",
+			"order": "created",
+			"from": "2019-05-01",
+			"to": "2019-12-04",
 		})
 
 		if err != nil {
