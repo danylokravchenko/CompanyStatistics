@@ -16,7 +16,7 @@ func LoadStats(companyID uint64) []models.UserStats {
 		from stats s
 		inner join users u on u.id = s.userid
 		where u.deletedat is null and u.companyid = ?
-		group by s.today
+		group by s.today, u.id
 	`, &companyID)
 
 	for idx, user := range users {
