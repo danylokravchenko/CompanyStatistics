@@ -22,7 +22,8 @@ And finally, execute `go run server.go` from directory, where `server.go` is loc
 
 ### How to run using Make
 * `make run` - to start server
-* `make docker` - to run docker
+* `make docker-up` - to run docker
+* `make docker-down` - to shut down docker
 * `make test-stats` - to run tests for stats
 * `make test-company` - to run tests for company
 

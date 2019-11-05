@@ -8,9 +8,13 @@ run:
 	@echo "  >  Starting server..."
 	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go run $(GOBIN) server.go
 
-docker:
+docker-up:
 	@echo "  >  Building docker..."
-	docker-compose -f $(GOBIN)/docker-compose.yml up --build
+	docker-compose -f $(GOBIN)/docker-compose.yml up -d --build
+
+docker-down:
+	@echo "  >  Making docker down..."
+	docker-compose -f $(GOBIN)/docker-compose.yml down
 
 test-stats:
 	@echo "  >  Testing stats..."
